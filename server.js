@@ -8,6 +8,19 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.post('/api/admin/login', (req, res) => {
+  const { senha } = req.body;
+
+  if (!senha) {
+    return res.status(400).json({ error: 'Senha não enviada.' });
+  }
+
+  if (senha === process.env.ADMIN_PASSWORD) {
+    return res.json({ success: true });
+  }
+
+  return res.status(401).json({ error: 'Senha incorreta.' });
+});
 
 // rota de teste (importante para verificar se o servidor está vivo)
 app.get('/', (req, res) => {
@@ -32,5 +45,6 @@ async function startServer() {
     console.error('Erro ao iniciar o servidor:', err);
   }
 }
+
 
 startServer();

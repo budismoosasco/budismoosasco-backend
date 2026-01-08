@@ -56,3 +56,11 @@ app.get('/api/events', async (req, res) => {
     res.status(500).json({ error: 'Erro ao carregar eventos' });
   }
 });
+app.delete('/api/events/:id', async (req, res) => {
+  try {
+    await Event.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao excluir evento' });
+  }
+});

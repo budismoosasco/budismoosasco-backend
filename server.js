@@ -4,10 +4,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-const app = express();
-
-// Importar o model Event corretamente
+// Importação correta do MODEL
 const Event = require('./models/Event');
+
+const app = express();
 
 app.use(cors());
 app.use(express.json());
@@ -33,7 +33,7 @@ app.post('/api/admin/login', (req, res) => {
 // ROTA DE TESTE
 // -------------------------------------------
 app.get('/', (req, res) => {
-  res.send('Servidor do templo está rodando');
+  res.send('Servidor do templo está rodando corretamente.');
 });
 
 // -------------------------------------------
@@ -60,6 +60,23 @@ app.post('/api/events', async (req, res) => {
   } catch (error) {
     console.error("ERRO NO POST /api/events:", error);
     res.status(500).json({ error: 'Erro ao criar evento' });
+  }
+});
+
+// -------------------------------------------
+// ATUALIZAR EVENTO
+// -------------------------------------------
+app.put('/api/events/:id', async (req, res) => {
+  try {
+    const eventUpdated = await Event.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.json({ success: true, event: eventUpdated });
+  } catch (error) {
+    console.error("ERRO NO PUT /api/events/:id:", error);
+    res.status(500).json({ error: 'Erro ao atualizar evento' });
   }
 });
 

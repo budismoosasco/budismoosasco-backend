@@ -8,6 +8,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
 app.post('/api/admin/login', (req, res) => {
   const { senha } = req.body;
 
@@ -46,6 +47,12 @@ async function startServer() {
   }
 }
 
-
 startServer();
-
+app.get('/api/events', async (req, res) => {
+  try {
+    const events = await Event.find().sort({ data: 1 });
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao carregar eventos' });
+  }
+});

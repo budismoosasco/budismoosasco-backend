@@ -6,9 +6,15 @@ const cors = require('cors');
 
 const app = express();
 
+// Importar o model Event corretamente
+const Event = require('./models/Event');
+
 app.use(cors());
 app.use(express.json());
 
+// -------------------------------------------
+// LOGIN DO ADMIN
+// -------------------------------------------
 app.post('/api/admin/login', (req, res) => {
   const { senha } = req.body;
 
@@ -23,19 +29,61 @@ app.post('/api/admin/login', (req, res) => {
   return res.status(401).json({ error: 'Senha incorreta.' });
 });
 
-// rota de teste (importante para verificar se o servidor está vivo)
+// -------------------------------------------
+// ROTA DE TESTE
+// -------------------------------------------
 app.get('/', (req, res) => {
   res.send('Servidor do templo está rodando');
 });
 
+// -------------------------------------------
+// LISTAR EVENTOS
+// -------------------------------------------
+app.get('/api/events', async (req, res) => {
+  try {
+    const events = await Event.find().sort({ data: 1 });
+    res.json(events);
+  } catch (error) {
+    console.error("ERRO NO GET /api/events:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// -------------------------------------------
+// CRIAR EVENTO
+// -------------------------------------------
+app.post('/api/events', async (req, res) => {
+  try {
+    const novoEvento = new Event(req.body);
+    await novoEvento.save();
+    res.json({ success: true, event: novoEvento });
+  } catch (error) {
+    console.error("ERRO NO POST /api/events:", error);
+    res.status(500).json({ error: 'Erro ao criar evento' });
+  }
+});
+
+// -------------------------------------------
+// EXCLUIR EVENTO
+// -------------------------------------------
+app.delete('/api/events/:id', async (req, res) => {
+  try {
+    await Event.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("ERRO NO DELETE /api/events/:id:", error);
+    res.status(500).json({ error: 'Erro ao excluir evento' });
+  }
+});
+
+// -------------------------------------------
+// INICIALIZAÇÃO DO SERVIDOR
+// -------------------------------------------
 async function startServer() {
   try {
     console.log('Conectando ao MongoDB...');
     await mongoose.connect(process.env.MONGO_URI);
     console.log('MongoDB conectado com sucesso');
-
-    app.use('/api/events', require('./routes/events'));
-    app.use('/api/contact', require('./routes/contact'));
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
@@ -48,19 +96,3 @@ async function startServer() {
 }
 
 startServer();
-app.get('/api/events', async (req, res) => {
-  try {
-    const events = await Event.find().sort({ data: 1 });
-    res.json(events);
-  } catch (error) {
-    res.status(500).json({ error: 'Erro ao carregar eventos' });
-  }
-});
-app.delete('/api/events/:id', async (req, res) => {
-  try {
-    await Event.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ error: 'Erro ao excluir evento' });
-  }
-});

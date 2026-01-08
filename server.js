@@ -4,7 +4,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-// Importação correta do MODEL
 const Event = require('./models/Event');
 
 const app = express();
@@ -12,9 +11,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 // -------------------------------------------
 // LOGIN DO ADMIN
 // -------------------------------------------
+
 app.post('/api/admin/login', (req, res) => {
   const { senha } = req.body;
 
@@ -29,16 +30,11 @@ app.post('/api/admin/login', (req, res) => {
   return res.status(401).json({ error: 'Senha incorreta.' });
 });
 
-// -------------------------------------------
-// ROTA DE TESTE
-// -------------------------------------------
-app.get('/', (req, res) => {
-  res.send('Servidor do templo está rodando corretamente.');
-});
 
 // -------------------------------------------
 // LISTAR EVENTOS
 // -------------------------------------------
+
 app.get('/api/events', async (req, res) => {
   try {
     const events = await Event.find().sort({ data: 1 });
@@ -49,9 +45,11 @@ app.get('/api/events', async (req, res) => {
   }
 });
 
+
 // -------------------------------------------
 // CRIAR EVENTO
 // -------------------------------------------
+
 app.post('/api/events', async (req, res) => {
   try {
     const novoEvento = new Event(req.body);
@@ -63,26 +61,11 @@ app.post('/api/events', async (req, res) => {
   }
 });
 
-// -------------------------------------------
-// ATUALIZAR EVENTO
-// -------------------------------------------
-app.put('/api/events/:id', async (req, res) => {
-  try {
-    const eventUpdated = await Event.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.json({ success: true, event: eventUpdated });
-  } catch (error) {
-    console.error("ERRO NO PUT /api/events/:id:", error);
-    res.status(500).json({ error: 'Erro ao atualizar evento' });
-  }
-});
 
 // -------------------------------------------
 // EXCLUIR EVENTO
 // -------------------------------------------
+
 app.delete('/api/events/:id', async (req, res) => {
   try {
     await Event.findByIdAndDelete(req.params.id);
@@ -93,9 +76,11 @@ app.delete('/api/events/:id', async (req, res) => {
   }
 });
 
+
 // -------------------------------------------
-// INICIALIZAÇÃO DO SERVIDOR
+// SERVIDOR + MONGODB
 // -------------------------------------------
+
 async function startServer() {
   try {
     console.log('Conectando ao MongoDB...');
